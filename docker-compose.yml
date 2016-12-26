@@ -1,55 +1,16 @@
-version: "2.1"
-#logging:
- # driver: "json-file"
-#volumes:
- # maven-data: {}
-    
+version: '2'
 services:
-  gibd_mavn:
-    container_name: maven
-    image: gibdfrcu/maven:${SO}_${JDK}_${MAVEN_VERSION}
-  gibd_zook:
-    container_name: zookeeper
-    image: gibdfrcu/zookeeper:${SO}_${JDK}_${ZOOKEEPER_VERSION}
+  zookeeper:
+    image: wurstmeister/zookeeper
     ports:
-      - "12181:2181"
-  gibd_kafk:
-    container_name: kafka
-    image: gibdfrcu/kafka:${SO}_${JDK}_${SCALA_VERSION}_${KAFKA_VERSION}
+      - "2181:2181"
+  kafka:
+    build: .
     ports:
-      - "19092:9092"
+      - "9092:9092"
     environment:
       KAFKA_ADVERTISED_HOST_NAME: 192.168.99.100
-      KAFKA_CREATE_TOPICS: "topic_test:1:1"
-      KAFKA_ZOOKEEPER_CONNECT: gibd_zook:2181
+      KAFKA_CREATE_TOPICS: "test:1:1"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-    links:
-      - gibd_zook:zook
-
-  gibd_nimb:
-    container_name: storm-nimbus
-    image: gibdfrcu/storm-nimbus:${SO}_${JDK}_${STORM_VERSION}
-    ports:
-      - "13773:3773"
-      - "13772:3772"
-      - "16627:6627"
-    links: 
-      - gibd_zook:zook
-  gibd_supv:
-    container_name: storm-supervisor
-    image: gibdfrcu/storm-supervisor:${SO}_${JDK}_${STORM_VERSION}
-    ports:
-      - "18000:8000"
-    links: 
-      - gibd_nimb:nimb
-      - gibd_zook:zook
-  gibd_stui:
-    container_name: storm-ui
-    image: gibdfrcu/storm-ui:${SO}_${JDK}_${STORM_VERSION}
-    ports:
-      - "18080:8080"
-    links: 
-      - gibd_nimb:nimb
-      - gibd_zook:zook
-

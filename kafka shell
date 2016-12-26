@@ -1,1 +1,0 @@
- ip=$(docker-machine ip); ./start-kafka-shell.sh $ip $ip:2181
